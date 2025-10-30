@@ -1,4 +1,4 @@
-Phase 0 Submitted on October 30, 2025
+**Phase 0 Submitted on October 30, 2025**
 - Designed Linear and Circular FIFO in Questions 2 and 3 (Rahul)
   - Question 2: FIFO.v
   - Question 3: FIFO_circular.v, fif0_tb.v
