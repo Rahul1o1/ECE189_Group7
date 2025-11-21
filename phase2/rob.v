@@ -1,0 +1,68 @@
+module rob(
+input clk,
+input reset,
+input [6:0] prd_new,
+input [6:0] prd_old,
+input [31:0] PC,
+input [1:0] stage,
+input [3:0] rob_tag,
+input checkpoint,
+output reg full,
+output reg empty
+);
+ 
+
+reg [3:0] head = 0;
+reg [3:0] tail = 0;
+reg [4:0] count = 0;
+reg [47:0] buffer [0:15];
+
+reg [3:0] recover;
+reg [4:0] count_bkp;
+//1. I stan Verilog and discovered that struct is only in SysVerilog
+//2. I am implementing this by concatenating these values and remembering the bit mapping
+
+always@ (posedge clk)
+begin
+	if(reset)
+	begin
+		full<=0;
+		empty<=1;
+		count<=0;
+		head<=0;
+		tail<=0;
+		recover<=0;
+		count_bkp<=0;
+	end
+	else
+	begin
+		if(stage == 0 && !full)	//Dispatch : 
+		begin
+			if(checkpoint)
+			begin
+				count_bkp <= count + 1;
+				recover <= tail + 1; // +1 since we shouldnt flush branch inst only inst after it
+			end
+			buffer[tail] <= {1'b1,prd_new,prd_old,PC,1'b0};
+			tail <= tail + 1;
+			count <= count + 1;
+			full <= (count == 15);
+			empty <= 0;
+		end
+		else if(stage == 1)	//Commit
+		begin
+			buffer[rob_tag] <= {buffer[rob_tag][47:1], 1'b1}; //To mark Complete	
+		end
+		else if(stage == 2 && !empty)	//Retire
+		begin
+			buffer[head] <= {1'b0, buffer[head][46:1]}; // clear valid bit
+			head <= head + 1;
+			count <= count - 1;
+			full<= 0;
+			empty <= (count == 1);
+		end
+	end
+
+end
+
+endmodule
