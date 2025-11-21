@@ -6,3 +6,7 @@
   - Question 4: priority_encoder.sv, tb_priority_encoder.sv
   - Question 5: skid_buffer_new.v, tb_skid_buffer_new.v
 - Both of us worked together in all the problems
+
+**Phase 1 Submitted on November 6, 2025**
+- Designed Fetch and Decode module without complete knowledge of functional units and further stages
+- Both of us worked together in all the problems
