@@ -9,4 +9,7 @@
 
 **Phase 1 Submitted on November 6, 2025**
 - Designed Fetch and Decode module without complete knowledge of functional units and further stages
-- Both of us worked together in all the problems
+
+
+**Phase 2 Submitted on November 23, 2025**
+- Designed Rename and Dismatch module as outlined in the google doc
