@@ -1,53 +1,44 @@
 module ifetch (
 
-	input [11:0] next_pc, 	//4kb memory
+	input [31:0] jump_pc, 	
 	input ready,
 	input clk,
 	input reset,
-	input pc_offset,
-	output [11:0] current_pc,
-	output [31:0] instruction,
-	output valid
+	input [31:0] instruction_int, //connection to icache
+	input pc_offset,	// control signal to know branch/jump
+	output reg [31:0] pc,
+	output reg [31:0] next_pc,
+	output [31:0] instruction_out,
+	output reg valid
 );
 
-reg [11:0] current_pc;
-reg valid;
+//assign valid = (reset)? 0 : 1;
+assign instruction_out = (reset)? 0: instruction_int;
+
+always @(*)
+begin
+	if(ready)
+	begin
+		next_pc = (pc_offset)? (jump_pc) : (pc +4) ;
+	end
+	else
+	begin
+		next_pc = pc;
+	end
+end
+
 
 always @(posedge clk)
 begin
 	if(reset)
 	begin
-		current_pc <=0;
-		valid <=0;
-	end
-	else if(ready)
-	begin
-		if(pc_offset)
-		begin
-			current_pc <= next_pc;
-			valid <=1;
-		end
-		else
-		begin
-			current_pc <= current_pc +4;
-			valid <=1;
-		end
+		valid <= 0;
+		pc <= 0;
 	end
 	else
 	begin
-		current_pc <= current_pc;
-		valid <=valid;
+		valid <= 1;
+		pc <= next_pc;
 	end
 end
-    // BRAM instance
-
-    wire [31:0] bram_data_out;    
-  
-
-    blk_mem_gen_0 instr_mem (
-        .clka(clk),
-        .addra(current_pc),
-        .douta(instruction)
-    );
-	
 endmodule

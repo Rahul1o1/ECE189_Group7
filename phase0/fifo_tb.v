@@ -10,7 +10,7 @@ module tb_fifo ();
     wire full, empty;
 
     // Instantiate FIFO
-    fifo #(8) uut (
+    fifo #(8,32) uut (
         .clk(clk),
         .reset(reset),
         .write_en(write_en),
