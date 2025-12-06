@@ -5,14 +5,16 @@ module map_table(
     input [4:0] rs2_a,
     input [4:0] rd_a,
 	input [6:0] rd_p,
-	input checkpoint,
-	input mispredict,// from execute stage
+	input Branch, // assume Branch is not taken
+	input [1:0] mispredict,// from execute stage
     output [6:0] rs1_p,
-    output [6:0] rs2_p
+    output [6:0] rs2_p,
+    output reg checkpoint
     );
     
 reg [6:0] rat[0:31]; 
 reg [6:0] cloned_rat[0:31];
+// checkpoint tells us whether we have a valid clone
 
 assign rs1_p = rat[rs1_a];
 assign rs2_p = rat[rs2_a];
@@ -84,10 +86,13 @@ always @(posedge clk) begin
 		cloned_rat[29] <= 7'b0000000;
 		cloned_rat[30] <= 7'b0000000;
 		cloned_rat[31] <= 7'b0000000;
+		
+		checkpoint <= 0;
 	end
 	else begin
 		rat[rd_a] <= rd_p;
-		if(mispredict) begin
+		
+		if(mispredict == 2'b01) begin // branch assumption is wrong
 			rat[0] <= cloned_rat[0];
 			rat[1] <= cloned_rat[1];
 			rat[2] <= cloned_rat[2];
@@ -120,8 +125,15 @@ always @(posedge clk) begin
 			rat[29] <= cloned_rat[29];
 			rat[30] <= cloned_rat[30];
 			rat[31] <= cloned_rat[31];
+			
+			checkpoint <= 0;
 		end
-		if(checkpoint) begin
+		
+		if(mispredict == 2'b10 && checkpoint) begin // branch assumption is correct
+			checkpoint <= 0;
+		end
+		
+		if(Branch && (!checkpoint)) begin // backup
 			cloned_rat[0] <= rat[0];
 			cloned_rat[1] <= rat[1];
 			cloned_rat[2] <= rat[2];
@@ -154,7 +166,11 @@ always @(posedge clk) begin
 			cloned_rat[29] <= rat[29];
 			cloned_rat[30] <= rat[30];
 			cloned_rat[31] <= rat[31];
+			
+			checkpoint <= 1;
 		end
+		
+		
 	end
 end
 endmodule
