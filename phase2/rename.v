@@ -1,70 +1,68 @@
-module rename (
-    input  wire        clk,
-    input  wire        reset,
-
-    // from Decode
-    input  wire [4:0]  a_rs1,
-    input  wire [4:0]  a_rs2,
-    input  wire [4:0]  a_rd,
-    input  wire        branch,
-    input valid_i,
-    output valid_o,
-    output ready_i,
-    input ready_o,
-    // from ROB when retiring a physical reg:
-    input  wire        retire_valid,
-    input  wire [6:0]  retire_preg,
-
-    // outputs to Dispatch
-    output wire [6:0]  p_rs1,
-    output wire [6:0]  p_rs2,
-    output wire [6:0]  p_rd,
-    output wire [3:0]  rob_tag,
-    output wire [6:0]  free_count
+module rename(
+	input clk,
+	input reset,
+	input ready_o,
+	input valid_i,
+	input [31:0] pc_out,
+	input [4:0] rs1,
+	input [4:0] rs2,
+	input [4:0] rd,
+	input [31:0] immediate,
+	input [2:0] ALUOp,
+	input [1:0] FUType, // 0 for ALU, 1 for Load/Store, 2 for Branch, 3 for Jump
+	input ALUSrc,	
+	input immused,
+	input rdused,
+	input LS,
+	input Branch,
+	input Jump,
+	input [1:0] mispredict,
+	input free_flag,
+	output ready_i,
+	output valid_o,
+	output [6:0] rs1_p,
+    output [6:0] rs2_p,
+    output [6:0] rd_p,
+    output [3:0] rob_tag_out
 );
 
-    wire [6:0] preg_assign;
+wire rd_p_fm;
+wire checkpoint_m;
+wire full_flag_f;
 
-    // -----------------------------
-    // Free List
-    // -----------------------------
-    freelist FL (
-        .clk(clk),
-        .reset(reset),
-        .checkpoint(branch),         // checkpoint on branch
-        .operation(retire_valid),       // 0 = allocate, 1 = retire
-        .preg_free(retire_preg),        // from ROB retire
-        .preg_assign(preg_assign),      // new PRD
-        .free_count(free_count)
-    );
+map_table MAP_TABLE(
+.clk(clk),
+.reset(reset),
+.rs1_a(rs1),
+.rs2_a(rs2),
+.rd_a(rd),
+.rs1_p(rs1_p),
+.rs2_p(rs2_p),
+.rd_p(rd_p_fm),
+.Branch(Branch),
+.mispredict(mispredict),
+.checkpoint(checkpoint_m)
+);
 
-    assign p_rd = preg_assign;
+free_list FREE_LIST(
+.clk(clk),
+.reset(reset),
+.rdused(rdused),
+.free_flag(free_flag),
+.Branch(Branch),
+.mispredict(mispredict),
+.rd_p(rd_p_fm),
+.full_flag(full_flag_f)
+);
 
-    // -----------------------------
-    // Register Map Table
-    // -----------------------------
-    regmap MAP (
-        .clk(clk),
-        .reset(reset),
-        .a_rs1(a_rs1),
-        .a_rs2(a_rs2),
-        .a_rd(a_rd),
-        .p_rd(preg_assign),
-        .rename(valid_i),
-        .checkpoint(branch),
-        .p_rs1(p_rs1),
-        .p_rs2(p_rs2)
-    );
+rob_tag ROB_TAG(
+.clk(clk),
+.reset(reset),
+.Branch(Branch),
+.mispredict(mispredict),
+.rob_tag_out(rob_tag_out)
+);
 
-    // -----------------------------
-    // ROB Tag allocator
-    // -----------------------------
-    robtag RT (
-        .clk(clk),
-        .reset(reset),
-        .checkpoint(branch),
-        .rob_tag(rob_tag)
-    );
+assign ready_i = !(checkpoint_m || full_flag_f);
 
 endmodule
-
