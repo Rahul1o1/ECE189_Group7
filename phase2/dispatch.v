@@ -24,7 +24,7 @@ module dispatch(
     wire [58:0] pipe_in, pipe_out;
     wire pipe_valid;
     
-    assign pipe_in = {p_rd, p_rs1, p_rs2, rob_tag, branch}; // pack your bits
+    assign pipe_in = {p_rd, p_rs1, p_rs2, rob_tag, branch}; 
     assign pipe_valid = valid_i;
 
     pipe_buf PIPE (
