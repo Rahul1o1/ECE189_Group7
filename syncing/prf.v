@@ -2,18 +2,18 @@ module prf (
     input clk,
     input reset,
     // Source read ports
-    input [6:0] prs1,           // Source register 1
-    input [6:0] prs2,           // Source register 2
+    input [6:0] prs1,           // Source register 1 for issuing
+    input [6:0] prs2,           // Source register 2 for issuing
     output reg [31:0] data1,    // Data from prs1
     output reg [31:0] data2,    // Data from prs2
     output reg ready1,          // Ready flag for prs1
     output reg ready2,          // Ready flag for prs2
 
     // Destination write port
-    input write_en,
+    input write_en,		//should come from writeback?
     input [6:0] prd,            // Destination register
     input [31:0] write_data,
-    input ready_en
+    input ready_en		
 );
 
     // 128-entry register file
@@ -39,6 +39,8 @@ module prf (
             begin
             	ready[prd] <= 1'b0;
             end
+		ready1 <= ready[prs1];
+        	ready2 <= ready[prs2];
         end
     end
 
@@ -46,9 +48,7 @@ module prf (
     always @(*) begin
         data1 = regfile[prs1];
         data2 = regfile[prs2];
-        ready1 = ready[prs1];
-        ready2 = ready[prs2];
+
     end
 
 endmodule
-
