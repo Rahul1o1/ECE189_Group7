@@ -134,7 +134,7 @@ module dispatch(
         .read_data(Jump_b)
     );
 
-    pipe_buf #(.width(1)) FUType (
+	pipe_buf #(.width(1)) PIPE11 (
         .clk(clk),
         .reset(reset),
         .write_data(FUType),
