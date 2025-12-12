@@ -23,6 +23,7 @@ module rename(
 	output [6:0] rs1_p,
     output [6:0] rs2_p,
     output [6:0] rd_p,
+	output [6:0] rd_p_old,
     output [3:0] rob_tag_out
 );
 
