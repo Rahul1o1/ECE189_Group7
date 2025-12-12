@@ -4,7 +4,9 @@ input reset,
 input [6:0] prd_new,
 input [6:0] prd_old,
 input [31:0] PC,
-input [1:0] stage,
+input dispatch_flag,
+input complete_flag,
+input retire_flag,
 input [3:0] rob_tag,
 input checkpoint,
 output reg full,
@@ -37,7 +39,7 @@ begin
 	end
 	else
 	begin
-		if(stage == 0 && !full)	//Dispatch : 
+		if(dispatch_flag && !full)	//Dispatch : 
 		begin
 			if(checkpoint)
 			begin
@@ -47,14 +49,14 @@ begin
 			buffer[tail] <= {1'b1,prd_new,prd_old,PC,1'b0};
 			tail <= tail + 1;
 			count <= count + 1;
-			full <= (count == 15);
+			full <= (count == 5'b01111);
 			empty <= 0;
 		end
-		else if(stage == 1)	//Commit
+		if(complete_flag)	//Complete
 		begin
 			buffer[rob_tag] <= {buffer[rob_tag][47:1], 1'b1}; //To mark Complete	
 		end
-		else if(stage == 2 && !empty)	//Retire
+		if(retire_flag && !empty)	//Retire
 		begin
 			buffer[head] <= {1'b0, buffer[head][46:0]}; // clear valid bit
 			head <= head + 1;
