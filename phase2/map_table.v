@@ -9,7 +9,8 @@ module map_table(
 	input [1:0] mispredict,// from execute stage
     output [6:0] rs1_p,
     output [6:0] rs2_p,
-    output reg checkpoint
+    output reg checkpoint,
+	output reg rd_p_old
     );
     
 reg [6:0] rat[0:31]; 
@@ -91,7 +92,7 @@ always @(posedge clk) begin
 	end
 	else begin
 		rat[rd_a] <= rd_p;
-		
+		rd_p_old <= rat[rd_a];
 		if(mispredict == 2'b01) begin // branch assumption is wrong
 			rat[0] <= cloned_rat[0];
 			rat[1] <= cloned_rat[1];
