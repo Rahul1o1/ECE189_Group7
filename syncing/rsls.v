@@ -1,7 +1,8 @@
 module rsls(
 input clk,
 input reset,
-input stage,
+input dispatch_flag,
+input issue_flag,
 input [6:0] prd_in,
 input [6:0] prs1_in,
 input prs1_readyin,
@@ -16,7 +17,8 @@ output reg [6:0] prs2_out,
 output reg [31:0] IMM_out,
 output reg ALU_src_out,
 output reg ls_out,
-output reg [3:0] rob_tag_out
+output reg [3:0] rob_tag_out,
+output free_valid
 );
 
 reg [0:7] use_rg;	//8 rows
@@ -66,7 +68,7 @@ begin
 	end
 	else
 	begin
-		if(stage == 0) //dispatch
+		if(dispatch_flag) //dispatch
 		begin
 			if(free_valid)
 			begin
@@ -82,7 +84,7 @@ begin
 				//1 for load, 0 for store
 			end
 		end
-		else if(stage == 1) //issue
+		if(issue_flag) //issue
 		begin
 			//will update with issue logic later
 			if(ready_valid)
