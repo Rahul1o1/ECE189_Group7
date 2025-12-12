@@ -16,6 +16,7 @@ input [3:0] rob_tag_in
 
 output reg [6:0] prs1_out, //goes to regfile
 output reg [6:0] prs2_out, //goes to regfile
+output reg [6:0] prd_out,
 output reg [31:0] IMM_out, //goes to issue module
 output reg ALU_src_out,
 output reg [2:0] ALU_op_out,
@@ -91,6 +92,7 @@ begin
 				use_rg[ready_index] <= 0;
 				prs1_out <= prs1[ready_index];
 				prs2_out <= prs2[ready_index];
+				prd_out <= prd[ready_index];
 				IMM_out <= IMM[ready_index];
 				ALU_op_out <= ALU_op[ready_index];
 				ALU_src_out <= ALU_src[ready_index];
