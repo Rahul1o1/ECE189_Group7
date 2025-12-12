@@ -18,6 +18,7 @@ output reg [31:0] IMM_out,
 output reg ALU_src_out,
 output reg br_out,
 output reg [3:0] rob_tag_out,
+output reg [6:0] prd_out,
 output free_valid
 );
 
@@ -94,6 +95,7 @@ begin
 				prs2_out <= prs2[ready_index];
 				IMM_out <= IMM[ready_index];
 				br_out <= br_rg[ready_index];
+				prd_out <= prd[ready_index];
 				rob_tag_out <= rob_tag[ready_index];
 			end
 		end
