@@ -1,22 +1,26 @@
 module rsalu(
 input clk,
 input reset,
-input stage,
-input [6:0] prd_in,
-input [6:0] prs1_in,
-input prs1_readyin,
-input [6:0] prs2_in,
-input prs2_readyin,
-input [31:0] IMM_in,
+input dispatch_flag,
+input issue_flag,
+input [6:0] prd_in,	//from rename
+input [6:0] prs1_in,	//from rename
+input prs1_readyin,	//from regfile
+input [6:0] prs2_in,	//from rename
+input prs2_readyin,	//from regfile
+//from rename
+input [31:0] IMM_in,	
 input ALU_src_in,
 input [2:0] ALU_op_in,
 input [3:0] rob_tag_in
-output reg [6:0] prs1_out,
-output reg [6:0] prs2_out,
-output reg [31:0] IMM_out,
+
+output reg [6:0] prs1_out, //goes to regfile
+output reg [6:0] prs2_out, //goes to regfile
+output reg [31:0] IMM_out, //goes to issue module
 output reg ALU_src_out,
 output reg [2:0] ALU_op_out,
-output reg [3:0] rob_tag_out
+output reg [3:0] rob_tag_out,
+output free_valid
 );
 
 reg [0:7] use_rg;	//8 rows
@@ -31,10 +35,8 @@ reg [2:0] ALU_op [0:7];
 reg [0:7] ALU_src;
 // alu inst = addi, ori, sltiu, sra, sub, and, 
 
-wire FU_ready;
 wire [2:0] free_index;
 wire [2:0] ready_index;
-wire free_valid;
 wire ready_valid;
 wire [7:0] pd_in;
 wire [7:0] pi_in;
@@ -65,7 +67,7 @@ begin
 	end
 	else
 	begin
-		if(stage == 0) //dispatch
+		if(dispatch_flag) //dispatch
 		begin
 			if(free_valid)
 			begin
@@ -81,7 +83,7 @@ begin
 				rob_tag[free_index] <= rob_tag_in;
 			end
 		end
-		else if(stage == 1) //issue
+		if(issue_flag) //issue
 		begin
 			//will update with issue logic later
 			if(ready_valid)
