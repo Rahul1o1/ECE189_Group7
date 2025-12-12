@@ -23,6 +23,7 @@ module test2(
 	output [6:0] rs1_p_pd,
     output [6:0] rs2_p_pd,
     output [6:0] rd_p_pd,
+	output [6:0] rd_p_old_pd,
     output [3:0] rob_tag_out_pd,
 	output [31:0] pc_pd,
 	output [31:0] immediate_pd,
@@ -41,6 +42,7 @@ wire valid_rp;//
 wire [6:0] rs1_p_rp;//
 wire [6:0] rs2_p_rp;//
 wire [6:0] rd_p_rp;//
+wire [6:0] rd_p_old_rp;//
 wire [3:0] rob_tag_out_rp;//
 wire [31:0] pc_rp;//
 wire immediate_rp;//
@@ -78,6 +80,7 @@ rename RENAME(
 .rs1_p(rs1_p_rp),
 .rs2_p(rs2_p_rp),
 .rd_p(rd_p_rp),
+.rd_p_old(rd_p_old_rp),
 .rob_tag_out(rob_tag_out_rp),
 .pc_out(pc_rp),
 .immediate_out(immediate_rp),
@@ -135,7 +138,18 @@ pipeline_skidbuf #(.width(7)) RENAME_PP4(
     .ready_out(ready_dp)
 );
 
-pipeline_skidbuf #(.width(32)) RENAME_PP5(
+pipeline_skidbuf #(.width(7)) RENAME_PP5(
+    .reset(reset),
+    .clk(clk),
+	.data_in(rd_p_old_rp),
+    .valid_in(valid_rp),
+    .ready_in(ready_pr),
+	.data_out(rd_p_old_pd),
+    .valid_out(valid_pd),
+    .ready_out(ready_dp)
+);
+
+pipeline_skidbuf #(.width(32)) RENAME_PP6(
     .reset(reset),
     .clk(clk),
     .data_in(immediate_rp),
@@ -146,7 +160,7 @@ pipeline_skidbuf #(.width(32)) RENAME_PP5(
     .ready_out(ready_dp)
 );
 
-pipeline_skidbuf #(.width(3)) RENAME_PP6(
+pipeline_skidbuf #(.width(3)) RENAME_PP7(
     .reset(reset),
     .clk(clk),
     .data_in(ALUOp_rp),
@@ -157,7 +171,7 @@ pipeline_skidbuf #(.width(3)) RENAME_PP6(
     .ready_out(ready_dp)
 );
 
-pipeline_skidbuf #(.width(2)) RENAME_PP7(
+pipeline_skidbuf #(.width(2)) RENAME_PP8(
     .reset(reset),
     .clk(clk),
     .data_in(FUType_rp),
@@ -168,7 +182,7 @@ pipeline_skidbuf #(.width(2)) RENAME_PP7(
     .ready_out(ready_dp)
 );
 
-pipeline_skidbuf #(.width(1)) RENAME_PP8(
+pipeline_skidbuf #(.width(1)) RENAME_PP9(
     .reset(reset),
     .clk(clk),
     .data_in(ALUSrc_rp),
@@ -179,7 +193,7 @@ pipeline_skidbuf #(.width(1)) RENAME_PP8(
     .ready_out(ready_dp)
 );
 
-pipeline_skidbuf #(.width(1)) RENAME_PP9(
+pipeline_skidbuf #(.width(1)) RENAME_PP10(
     .reset(reset),
     .clk(clk),
     .data_in(immused_rp),
@@ -190,7 +204,7 @@ pipeline_skidbuf #(.width(1)) RENAME_PP9(
     .ready_out(ready_dp)
 );
 
-pipeline_skidbuf #(.width(1)) RENAME_PP10(
+pipeline_skidbuf #(.width(1)) RENAME_PP11(
     .reset(reset),
     .clk(clk),
     .data_in(rdused_rp),
@@ -201,7 +215,7 @@ pipeline_skidbuf #(.width(1)) RENAME_PP10(
     .ready_out(ready_dp)
 );
 
-pipeline_skidbuf #(.width(1)) RENAME_PP11(
+pipeline_skidbuf #(.width(1)) RENAME_PP12(
     .reset(reset),
     .clk(clk),
     .data_in(LS_rp),
@@ -212,7 +226,7 @@ pipeline_skidbuf #(.width(1)) RENAME_PP11(
     .ready_out(ready_dp)
 );
 
-pipeline_skidbuf #(.width(1)) RENAME_PP12(
+pipeline_skidbuf #(.width(1)) RENAME_PP13(
     .reset(reset),
     .clk(clk),
     .data_in(Branch_rp),
@@ -223,7 +237,7 @@ pipeline_skidbuf #(.width(1)) RENAME_PP12(
     .ready_out(ready_dp)
 );
 
-pipeline_skidbuf #(.width(1)) RENAME_PP13(
+pipeline_skidbuf #(.width(1)) RENAME_PP14(
     .reset(reset),
     .clk(clk),
     .data_in(Jump_rp),
@@ -234,7 +248,7 @@ pipeline_skidbuf #(.width(1)) RENAME_PP13(
     .ready_out(ready_dp)
 );
 
-pipeline_skidbuf #(.width(4)) RENAME_PP14(
+pipeline_skidbuf #(.width(4)) RENAME_PP15(
     .reset(reset),
     .clk(clk),
     .data_in(rob_tag_out_rp),
