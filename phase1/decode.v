@@ -12,6 +12,8 @@ output [4:0] rs2,
 output [4:0] rd,
 output reg [31:0] immediate,
 output reg [2:0] ALUOp,
+output F7,
+output [2:0] F3,
 output reg [1:0] FUType, // 0 for ALU, 1 for Load/Store, 2 for Branch, 3 for Jump
 output reg ALUSrc,	
 output reg immused,
@@ -20,7 +22,6 @@ output reg LS,
 output reg Branch,
 output reg Jump
 );
-
 
 assign ready_i = ready_o;
 
@@ -38,6 +39,8 @@ assign	rs1 = instruction[19:15];
 assign	rs2 = instruction[24:20];
 assign	rd = instruction[11:7];
 assign opcode = instruction[6:0];
+assign F7 = instruction[30];
+assign F3 = instruction[14:12];
 assign pc_out = pc_in;
 
 always @(*)
